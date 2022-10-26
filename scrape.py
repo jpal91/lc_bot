@@ -1,10 +1,10 @@
-import asyncio
-import time
 import os
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 load_dotenv()
 
 class Scrape:
@@ -29,27 +29,31 @@ class Scrape:
         self.title = ""
         self.file_name = ""
         self.challenge_url = ""
-        self.driver = webdriver.Chrome(os.getenv('PATH'))
+        self.driver = webdriver.Chrome(os.getenv('DRIVE_PATH'))
         self.driver.implicitly_wait(10)
 
-    async def login(self):
+    def login(self):
         """
         Summary:
-        Logs into LeetCode using username and password. The method is async to
-        simulate some time needed to complete the login process on the LeetCode side
-        before it proceeds to the individual submissions
+        Logs into LeetCode using username and password.
 
         Parameters: None
 
         Returns: None
         """
         self.driver.get("https://leetcode.com/accounts/login/")
+
         login = self.driver.find_element(By.CSS_SELECTOR, "input#id_login")
         login.send_keys("jpal91")
+
         password = self.driver.find_element(By.CSS_SELECTOR, "input#id_password")
         password.send_keys(os.getenv('PASSWORD'))
+
         password.send_keys(Keys.RETURN)
-        time.sleep(5)
+
+        # Waits until after the login redirect to continue
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(EC.url_changes(self.driver.current_url))
         return
 
     def copy(self):
@@ -153,15 +157,6 @@ class Scrape:
 
 
 if __name__ == '__main__':
-    async def run_urls(urls):
-        drive = Scrape()
-        await drive.login()
-
-        for url in urls:
-            drive.write_solution(url)
-            drive.write_readme()
-        drive.close()
-    
     # pending.txt is used as a queue for new solutions that I've added
     # and want to include in the leetcode repository.
     #
@@ -174,4 +169,16 @@ if __name__ == '__main__':
         lines = file.readlines()
     with open('../leetcode/pending.txt', 'w') as file:
         file.write('')
-    asyncio.run(run_urls([l.strip() for l in lines]))
+    
+    urls = [l.strip() for l in lines]
+
+    drive = Scrape()
+    drive.login()
+
+    for url in urls:
+        drive.write_solution(url)
+        drive.write_readme()
+
+    drive.close()
+
+    
