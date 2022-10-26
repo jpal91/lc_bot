@@ -5,10 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-load_dotenv()
+
 
 class Scrape:
-    def __init__(self):
+    def __init__(self, user, pwd, drive_path):
         """
         Summary: 
         The Scrape class initializes a Selenium Chrome browser interface to
@@ -20,34 +20,39 @@ class Scrape:
         of my README file within the target repository
 
         Parameters:
-        None
+        user String: LeetCode username
+        pws String: LeetCode password
+        drive_path String: Absolute path to Chrome WebDriver on local stystem
 
         Returns:
         None
         """
-        
+ 
         self.title = ""
         self.file_name = ""
         self.challenge_url = ""
-        self.driver = webdriver.Chrome(os.getenv('DRIVE_PATH'))
+        self.driver = webdriver.Chrome(drive_path)
         self.driver.implicitly_wait(10)
+        self._login(user, pwd)
 
-    def login(self):
+    def _login(self, user, pwd):
         """
         Summary:
         Logs into LeetCode using username and password.
 
-        Parameters: None
+        Parameters:
+        user String: Username
+        pws String: Password
 
         Returns: None
         """
         self.driver.get("https://leetcode.com/accounts/login/")
 
         login = self.driver.find_element(By.CSS_SELECTOR, "input#id_login")
-        login.send_keys("jpal91")
+        login.send_keys(user)
 
         password = self.driver.find_element(By.CSS_SELECTOR, "input#id_password")
-        password.send_keys(os.getenv('PASSWORD'))
+        password.send_keys(pwd)
 
         password.send_keys(Keys.RETURN)
 
@@ -56,7 +61,7 @@ class Scrape:
         wait.until(EC.url_changes(self.driver.current_url))
         return
 
-    def copy(self):
+    def _copy(self):
         """
         Summary:
         Copies code from the submission to be used within the write_solution method
@@ -119,7 +124,7 @@ class Scrape:
         # copy() method is called to return the actual code text from the submission page
         # File name from above is joined by .py and written to a new file line by line 
         # to maintain formatting
-        text = self.copy()
+        text = self._copy()
         self.file_name = title_text + ".py"
         with open("../leetcode/Python/" + self.file_name, "w") as file:
             for t in text:
@@ -164,6 +169,7 @@ if __name__ == '__main__':
     # The list created is then stripped of whitespace and given to the run_urls
     # function which will create a new WebDriver/Scrape instance and run each url
     # one by one until complete
+    load_dotenv()
 
     with open('../leetcode/pending.txt', 'r') as file:
         lines = file.readlines()
@@ -172,8 +178,9 @@ if __name__ == '__main__':
     
     urls = [l.strip() for l in lines]
 
-    drive = Scrape()
-    drive.login()
+    username, password, drive_path = os.getenv('USER'), os.getenv('PASSWORD'), os.getenv('DRIVE_PATH')
+
+    drive = Scrape(username, password, drive_path)
 
     for url in urls:
         drive.write_solution(url)
