@@ -206,7 +206,6 @@ if __name__ == "__main__":
 
     urls = [l.strip() for l in lines]
 
-    print("gotem")
     drive = Scrape(args[0], args[1], args[2])
 
     for url in urls:
