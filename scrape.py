@@ -186,6 +186,11 @@ if __name__ == "__main__":
     # RM_PATH: An absolute or relative path to the README.md file
     # SOL_PATH: An absolute or relative path to the directory which will have the new solution added
 
+    check = input('Is your queue list up to date? -> y/n: ')
+
+    if check != 'y':
+        sys.exit('Update your queue!')
+
     load_dotenv()
     args = [username, password, drive_path, q_path, rm_path, sol_path] = (
         os.getenv("USER"),
