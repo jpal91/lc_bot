@@ -177,12 +177,13 @@ if __name__ == "__main__":
     # and want to include in the leetcode repository.
     #
     # The items are read off and the "queue" is cleared by writing over the file
-    # The list created is then stripped of whitespace and given to the run_urls
-    # function which will create a new WebDriver/Scrape instance and run each url
+    # The list created is then stripped of whitespace and given to the class
+    # instance which will create a new WebDriver/Scrape instance and run each url
     # one by one until complete
     #
     # Environment Variables:
-    # When running this program from the command line, a .env file must be present with the variables listed below:
+    # When running this program from the command line, a .env file can be present with the variables listed below.
+    # This is optional and if not provided, you will be prompted to enter the required info before proceeding
     # USER: LeetCode username
     # PASSWORD: LeetCode password
     # DRIVE_PATH: Absolute path to the Chrome Webdriver
@@ -196,21 +197,41 @@ if __name__ == "__main__":
         sys.exit('Update your queue!')
 
     load_dotenv()
-    args = [username, password, drive_path, q_path, rm_path, sol_path] = (
+
+    args = [
         os.getenv("USER"),
         os.getenv("PASSWORD"),
         os.getenv("DRIVE_PATH"),
         os.getenv("Q_PATH"),
         os.getenv("RM_PATH"),
         os.getenv("SOL_PATH")
-    )
+    ]
 
     if not all(args):
+        for i in range(6):
+            if args[i]:
+                continue
+
+            match i:
+                case 0:
+                    args[0] = input('Enter LeetCode username ')
+                case 1:
+                    args[1] = input('Enter LeetCode password ')
+                case 2:
+                    args[2] = input('Enter absolute path to Chrome Webdriver ')
+                case 3:
+                    args[3] = input('Enter absolute or relative path to queue .txt file ')
+                case 4:
+                    args[4] = input('Enter absolute or relative path to README file ')
+                case 5:
+                    args[5] = input('Enter absolute or relative path to your solutions directory ')
+
+    if not all(args):    
         sys.exit("Required env variables are not present. Please see https://github.com/jpal91/lc_bot for instructions.")
 
     with open(args[3], "r") as file:
         lines = file.readlines()
-    with open(q_path, 'w') as file:
+    with open(args[3], 'w') as file:
         file.write('')
 
     urls = [l.strip() for l in lines]
