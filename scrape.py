@@ -34,28 +34,32 @@ class Scrape:
         self.title = ""
         self.file_name = ""
         self.challenge_url = ""
-        self.driver = webdriver.Chrome(drive_path)
-        self.driver.implicitly_wait(10)
-        self._login(user, pwd)
+        self.user = user
+        self.pwd = pwd
+        self.drive_path = drive_path
+        
 
-    def _login(self, user, pwd):
+    def login(self):
         """
         Summary:
-        Logs into LeetCode using username and password.
+        Logs into LeetCode using username and password and creates a WebDriver to be used when
+        creating new submissions files.
 
         Parameters
-        user String: Username
-        pwd String: Password
+        None
 
         Returns: None
         """
+        self.driver = webdriver.Chrome(self.drive_path)
+        self.driver.implicitly_wait(10)
+
         self.driver.get("https://leetcode.com/accounts/login/")
 
         login = self.driver.find_element(By.CSS_SELECTOR, "input#id_login")
-        login.send_keys(user)
+        login.send_keys(self.user)
 
         password = self.driver.find_element(By.CSS_SELECTOR, "input#id_password")
-        password.send_keys(pwd)
+        password.send_keys(self.pwd)
 
         password.send_keys(Keys.RETURN)
 
@@ -212,6 +216,8 @@ if __name__ == "__main__":
     urls = [l.strip() for l in lines]
 
     drive = Scrape(args[0], args[1], args[2])
+
+    drive.login()
 
     for url in urls:
         drive.write_solution(url, args[5])
