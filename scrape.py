@@ -25,7 +25,7 @@ class Scrape:
         Parameters:
         user String: LeetCode username
         pws String: LeetCode password
-        drive_path String: Absolute path to Chrome WebDriver on local stystem
+        drive_path String: Absolute path to Chrome WebDriver on local stystem ex. C:/User/Programs/chromedriver
 
         Returns:
         None
@@ -64,8 +64,13 @@ class Scrape:
         password.send_keys(Keys.RETURN)
 
         # Waits until after the login redirect to continue
-        wait = WebDriverWait(self.driver, 10)
-        wait.until(EC.url_changes(self.driver.current_url))
+        # If credentials aren't correct, exit
+        try:
+            wait = WebDriverWait(self.driver, 10)
+            wait.until(EC.url_changes(self.driver.current_url))
+        except:
+            self.close()
+            sys.exit('Could not log in. Please check credentials and try again')
         return
 
     def _copy(self):
