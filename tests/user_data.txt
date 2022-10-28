@@ -1,10 +1,8 @@
-#!/bin/bash
-
-touch test.txt
-mkdir testing
 apt-get -y update
-apt install -y docker.io
-
+apt-get -y upgrade
+apt-get -y install chromium-chromedriver
+apt-get -y install python3-pip
+pip install selenium
  
  
  

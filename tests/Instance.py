@@ -17,10 +17,10 @@ class Instance:
         self.id = ""
 
     async def create(self):
-        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['01:fe:81:3e:16:07:d8:85:ce:99:e9:ab:de:04:2d:d9'], "user_data": ""}
+        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['c2:e4:3c:1d:86:25:8c:19:37:36:a3:4d:1e:9f:f5:e3'], "user_data": ""}
 
-        with open('user_data.txt') as file:
-            body['user_data'] = file.read()
+        # with open('user_data.txt') as file:
+        #     body['user_data'] = file.read()
 
         req = requests.post(
             "https://api.digitalocean.com/v2/droplets", headers=self.headers, data=body
@@ -68,3 +68,25 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# from selenium.webdriver.chrome.options import Options
+# options = Options()
+# options.headless = True
+# options.add_argument('--no-sandbox')
+# options.add_argument('--disable-dev-shm-usage')
+# driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', options=options)
+# apt-get install chromium-chromedriver
+
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
+
+# options = Options()
+# options.headless = True
+# options.add_argument('--no-sandbox')
+# options.add_argument('--disable-dev-shm-usage')
+# driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver', options = options)
+
+# with open('google.txt', "w") as file:
+#         file.write(driver.page_source)
+# watch "COLUMNS = ps aux | grep apt"
+# watch pgrep [a]pt
+# driver.close()
