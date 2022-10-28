@@ -1,0 +1,15 @@
+#!/bin/bash
+
+touch test.txt
+mkdir testing
+apt-get -y update
+apt install -y docker.io
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
