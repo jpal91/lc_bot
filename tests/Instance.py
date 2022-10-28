@@ -17,16 +17,12 @@ class Instance:
         self.id = ""
 
     async def create(self):
-        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['c2:e4:3c:1d:86:25:8c:19:37:36:a3:4d:1e:9f:f5:e3'], "user_data": ""}
-
-        # with open('user_data.txt') as file:
-        #     body['user_data'] = file.read()
+        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['c2:e4:3c:1d:86:25:8c:19:37:36:a3:4d:1e:9f:f5:e3']}
 
         req = requests.post(
             "https://api.digitalocean.com/v2/droplets", headers=self.headers, data=body
         )
         res = json.loads(req.text)
-        # print(res)
         self.id = res["droplet"]["id"]
 
     async def get_droplets(self):
@@ -53,7 +49,15 @@ class Instance:
             else:
                 print("Droplet complete")
                 break
+    
+    def get_ip(self):
+        req = requests.get(f"https://api.digitalocean.com/v2/droplets/{self.id}", headers=self.headers)
+        res = json.loads(req.text)
 
+        return res['droplet']['networks']['v4'][0]['ip_address']
+    
+    def kill_drop(self):
+        requests.delete(f'https://api.digitalocean.com/v2/droplets/{self.id}', headers=self.headers)
 
 async def main():
     instance = Instance()
@@ -63,7 +67,7 @@ async def main():
         instance.get_droplets()
     )
     print("Done")
-
+    instance.kill_drop()
 
 if __name__ == "__main__":
     asyncio.run(main())
