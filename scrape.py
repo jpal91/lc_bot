@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 
 class Scrape:
@@ -39,7 +40,7 @@ class Scrape:
         self.drive_path = drive_path
         
 
-    def login(self):
+    def login(self, headless = False):
         """
         Summary:
         Logs into LeetCode using username and password and creates a WebDriver to be used when
@@ -50,7 +51,9 @@ class Scrape:
 
         Returns: None
         """
-        self.driver = webdriver.Chrome(self.drive_path)
+        options = Options()
+        options.headless = headless
+        self.driver = webdriver.Chrome(self.drive_path, options=options)
         self.driver.implicitly_wait(10)
 
         self.driver.get("https://leetcode.com/accounts/login/")
