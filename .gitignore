@@ -1,3 +1,4 @@
 .env
 tests/*_key
 .gitignore
+__pycache__
