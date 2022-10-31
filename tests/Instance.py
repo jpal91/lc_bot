@@ -13,11 +13,12 @@ class Instance:
         self.token = os.getenv("DO_AUTH")
         self.headers = {"Authorization": f"Bearer {self.token}"}
         self.size = "s-1vcpu-512mb-10gb"
-        self.image = "ubuntu-20-04-x64"
+        self.image = "ubuntu-22-10-x64"
+        self.region = 'nyc'
         self.id = ""
 
     async def create(self):
-        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['c2:e4:3c:1d:86:25:8c:19:37:36:a3:4d:1e:9f:f5:e3']}
+        body = {"size": self.size, "image": self.image, "name": "test-drop", "ssh_keys": ['c2:e4:3c:1d:86:25:8c:19:37:36:a3:4d:1e:9f:f5:e3'], "region": self.region}
 
         req = requests.post(
             "https://api.digitalocean.com/v2/droplets", headers=self.headers, data=body

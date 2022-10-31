@@ -20,6 +20,7 @@ class ServCon:
             print(e)
 
         async with asyncssh.connect(host=self.ip, username='root', client_keys=[key], known_hosts = None) as conn:
+            print('Connected')
             with open('user_data.txt', 'r') as f:
                 comms = [l.strip() for l in f.readlines()]
 
@@ -41,16 +42,36 @@ class ServCon:
                             if not complete:
                                 if retries:
                                     retries -= 1
-                                    await asyncio.sleep(2)
+                                    await asyncio.sleep(5)
                                 else:
                                     print('Can not complete')
-                                    break
+                                    conn.close()
+                                    raise OSError
                             else:
                                 await asyncio.sleep(1)
                                 break
+                    
+                    
+
                 
-                conn.close()
-                return
+            with open('tests-env.txt', 'r') as envf:
+                envs = [l.strip() for l in envf.readlines()]
+                n = len(envs)
+
+                for i, env in enumerate(envs):
+                    if not env:
+                        break
+                    try:
+                        print(f'Adding {i + 1} of {n} env vars')
+                        await conn.run(f'export {env}', check=True)
+                    except Exception as e:
+                        raise e
+                
+                print('Done writing .env')
+            
+            conn.close()
+            return
+
 
 
 
@@ -60,15 +81,20 @@ async def main():
 
     await instance.create()
     await instance.get_droplets()
+
     print("Done")
     ip_add = instance.get_ip()
-    await asyncio.sleep(15)
+
+    await asyncio.sleep(30)
     connect = ServCon(ip_add)
+
     try:
         await connect.run_client()
     except (OSError, asyncssh.Error) as exc:
+        instance.kill_drop()
         sys.exit('SSH connection failed: ' + str(exc))
-    
+
+
     sys.exit()
 
 if __name__ == '__main__':
