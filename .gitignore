@@ -1,2 +1,3 @@
 .env
-tests/key.ppk
+tests/
+__pycache__
