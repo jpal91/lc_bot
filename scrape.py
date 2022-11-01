@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 
 class Scrape:
@@ -50,9 +51,6 @@ class Scrape:
 
         Returns: None
         """
-        self.driver = webdriver.Chrome(self.drive_path)
-        self.driver.implicitly_wait(10)
-
         self.driver.get("https://leetcode.com/accounts/login/")
 
         login = self.driver.find_element(By.CSS_SELECTOR, "input#id_login")
@@ -67,6 +65,18 @@ class Scrape:
         wait = WebDriverWait(self.driver, 10)
         wait.until(EC.url_changes(self.driver.current_url))
         return
+
+    def create_client(self, headless = False):
+        if headless:
+            options = Options()
+            options.headless = True
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            self.driver = webdriver.Chrome(self.drive_path, options=options)
+        else:
+            self.driver = webdriver.Chrome(self.drive_path)
+        
+        self.driver.implicitly_wait(10)
 
     def _copy(self):
         """
@@ -238,6 +248,7 @@ if __name__ == "__main__":
 
     drive = Scrape(args[0], args[1], args[2])
 
+    drive.create_client()
     drive.login()
 
     for url in urls:
