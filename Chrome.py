@@ -1,5 +1,4 @@
 import os
-from subprocess import DETACHED_PROCESS
 import sys
 import time
 from dotenv import load_dotenv
