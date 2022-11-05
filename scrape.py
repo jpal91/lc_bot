@@ -232,7 +232,7 @@ class Scrape:
 
 
 if __name__ == "__main__":
-    # pending.txt is used as a queue for new solutions that I've added
+    # pending(-py or -sql).txt is used as a queue for new solutions that I've added
     # and want to include in the leetcode repository.
     #
     # The items are read off and the "queue" is cleared by writing over the file
@@ -246,14 +246,26 @@ if __name__ == "__main__":
     # USER: LeetCode username
     # PASSWORD: LeetCode password
     # DRIVE_PATH: Absolute path to the Chrome Webdriver
-    # Q_PATH: An absolute or relative path to the "queue" (.txt file) that you will use to specify which solutions you want to be processed
+    # (PY or SQL)_Q_PATH: An absolute or relative path to the "queue" (.txt file) that you will use to specify which solutions you want to be processed
     # RM_PATH: An absolute or relative path to the README.md file
-    # SOL_PATH: An absolute or relative path to the directory which will have the new solution added
+    # (PY or SQL)_SOL_PATH: An absolute or relative path to the directory which will have the new solution added
+
+    options = {
+        'py': ('## Python\n', 'Python', 'PY_Q_PATH', 'PY_SOL_PATH'),
+        'sql': ('## SQL\n', 'SQL', 'SQL_Q_PATH', 'SQL_SOL_PATH')
+    }
 
     check = input('Is your queue list up to date? -> y/n: ')
 
     if check != 'y':
         sys.exit('Update your queue!')
+    
+    check2 = input('Which table? -> py/sql ')
+
+    if check2 not in options:
+        sys.exit('Did not recognize choice, please try again')
+    
+    pick = options[check2]
 
     load_dotenv()
 
@@ -261,9 +273,9 @@ if __name__ == "__main__":
         os.getenv("USER"),
         os.getenv("PASSWORD"),
         os.getenv("DRIVE_PATH"),
-        os.getenv("Q_PATH"),
+        os.getenv(pick[2]),
         os.getenv("RM_PATH"),
-        os.getenv("SOL_PATH")
+        os.getenv(pick[3])
     ]
 
     if not all(args):
@@ -303,6 +315,6 @@ if __name__ == "__main__":
     for url in urls:
         drive.write_solution(url, args[5])
     
-    drive.write_readme(args[4], ('## Python\n', 'Python'))
+    drive.write_readme(args[4], (pick[0], pick[1]))
 
     drive.close()
