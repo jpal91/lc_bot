@@ -38,6 +38,7 @@ class Scrape:
         self.user = user
         self.pwd = pwd
         self.drive_path = drive_path
+        self.challenges = []
         
 
     def login(self):
@@ -113,23 +114,27 @@ class Scrape:
         """
         self.driver.get(url)
         title = self.driver.find_element(By.CSS_SELECTOR, "h4 a.inline-wrap").text
-
+        challenge_info = {}
+        
         # Keeps the actual title of the challenge for use in the write_readme module
         # ex: "Two Sum"
-        self.title = title
+
+        challenge_info['title'] = title
 
         # After, we move all letters to lowercase and join by "-" to use as a file name
         # ex: "two-sum"
         # Since this is also the same format of the challenge urls on leetcode, simply
         # use this newly created string as the direct link to the challenge page within the
         # write_readme method
+
         title = title.lower().split(" ")
         title_text = "-".join(title)
-        self.challenge_url = "https://leetcode.com/problems/" + title_text
-
+        challenge_info['url'] = "https://leetcode.com/problems/" + title_text
+        
         # If the length is over 25 (arbitrary), we truncate the file name by moving backwards
         # through the string until we reach the next "-" to avoid slicing through a word
         # ex: "first-unique-character-in-a-string" -> "first-unique-character"
+
         n = len(title_text)
 
         if n > 25:
@@ -143,13 +148,21 @@ class Scrape:
         # copy() method is called to return the actual code text from the submission page
         # File name from above is joined by .py and written to a new file line by line
         # to maintain formatting
+
         text = self._copy()
-        self.file_name = title_text + ".py"
-        with open(sol_dir + self.file_name, "w") as file:
+        file_name = title_text + ".py"
+        challenge_info['f_name'] = file_name
+
+        # self.challenges is given the new dict which stores the pertitent information of the
+        # file for the write_readme method to use
+
+        self.challenges.append(challenge_info)
+
+        with open(sol_dir + file_name, "w") as file:
             for t in text:
                 file.write(t.text + "\n")
 
-    def write_readme(self, rm_path):
+    def write_readme(self, rm_path, name, challenges=None):
         """
         Summary
         Appends a new line to the end of the README in MD table format. The
@@ -157,17 +170,53 @@ class Scrape:
         This class appends the solution code from the solution page, a link to the
         file within the repository, and the challenge's url on LeetCode
 
+        This function will write based on the self.challenges list that was produced when 
+        the write_solutions method was called. The function will first find the line within
+        the readme that matches the start of the table, then keep iterating until it finds the
+        end of the table '***'. The table is split and the new lines are added in to the first half.
+        The resulting new first half and the second half are joined and written into the README
+
         Parameters
         
         rm_path String: Absolute or relative path to the README file Ex: C:/Users/Project/README.md or ../README.md
+        name Tuple: Contains the value of the table name (ie ## Python\n) and file path name (ie Python)
+        challenges List: A list of solutions to write to the file. If none is provided, it's defaulted to self.challenges
 
         Returns: None
         """
-        with open(rm_path, "a") as file:
-            string = "\n|[{}](/Python/{})|[LC]({})||".format(
-                self.title, self.file_name, self.challenge_url
-            )
-            file.write(string)
+        if not challenges and not self.challenges:
+            print('Unable to complete, no challenges')
+            return
+        
+        path, table = name
+
+        with open(rm_path, 'r') as file:
+            lines = file.readlines()
+            loc, idx = False, None
+
+            for i, l in enumerate(lines):
+                if l == path:
+                    loc = True
+                elif loc and '***' in l:
+                    idx = i - 1
+                    break
+        
+        before, after = lines[:idx], lines[idx:]
+
+        if not challenges:
+            challenges = self.challenges
+
+        for chal in challenges:
+            title, url, f_name = chal['title'], chal['url'], chal['f_name']
+
+            new_line = f'|[{title}](/{table}/{f_name})|[LC]({url})||\n'
+            before.append(new_line)
+
+        new_text = before + after
+
+        with open(rm_path, 'w') as file:
+            file.writelines(new_text)
+        
 
     def close(self):
         """
@@ -253,6 +302,7 @@ if __name__ == "__main__":
 
     for url in urls:
         drive.write_solution(url, args[5])
-        drive.write_readme(args[4])
+    
+    drive.write_readme(args[4], ('## Python\n', 'Python'))
 
     drive.close()
