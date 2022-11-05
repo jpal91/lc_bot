@@ -150,7 +150,12 @@ class Scrape:
         # to maintain formatting
 
         text = self._copy()
-        file_name = title_text + ".py"
+
+        if 'SQL' in sol_dir:
+            file_name = title_text + ".sql"
+        else:
+            file_name = title_text + ".py"
+        
         challenge_info['f_name'] = file_name
 
         # self.challenges is given the new dict which stores the pertitent information of the
